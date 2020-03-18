@@ -1,0 +1,1 @@
+module.exports.roles = ['ROLE_SADMIN','ROLE_ADMIN','ROLE_OPERATEUR','ROLE_LIVREUR'];

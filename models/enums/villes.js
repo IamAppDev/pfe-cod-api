@@ -1,0 +1,1 @@
+module.exports.villes = ['marrakech','casablanca','rabat'];
