@@ -12,29 +12,35 @@ module.exports = (sequelize, DataTypes) => {
         nom: {
             type: DataTypes.STRING
         },
-        prenom:{
+        prenom: {
             type: DataTypes.STRING
         },
-        email:{
+        email: {
             type: DataTypes.STRING,
+            unique: true,
+            allowNull: false,
             validate : {
                 isEmail: true
             }
         },
-        ville:{
+        motdepasse: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        ville: {
             type: DataTypes.ENUM,
             values: villes
         },
-        telephone:{
+        telephone: {
             type: DataTypes.STRING
         },
         cin:{
             type: DataTypes.STRING
         },
-        accessToken:{
+        accessToken: {
             type: DataTypes.STRING
         },
-        notifToken:{
+        notifToken: {
             type: DataTypes.STRING
         }
     }, {
@@ -43,3 +49,20 @@ module.exports = (sequelize, DataTypes) => {
 
     return Utilisateur;
 };
+
+/*
+{
+        instanceMethods: {
+            hashPassword: async function() {
+                //const salt = await bcrypt.genSalt(10);
+                //this.motdepasse = await bcrypt.hash(this.motdepasse, salt);
+                console.log('-----------------------------------------hello !!!');
+            }
+        },
+        classMethods: {
+            generateAuthToken: function() {
+                const token = jwt.sign({ email: this.email }, config.get('jwtPrivateKey'));
+                return token;
+            }
+        }
+*/

@@ -1,18 +1,13 @@
 const express = require('express');
 const app = express();
-const Sequelize = require('sequelize');
-const db = require('./models/index');
+const winston = require('winston');
+
+require('./startup/logging')();
+require('./startup/routes')(app);
+require('./startup/db')();
+require('./startup/config')();
 
 
-app.listen(3000, () => {
-    console.log('Server Started !');
 
-    
-
-    db.sequelize.sync({ force: true })
-        .then(() =>  {
-            db.commande.create({});
-        });
-
-
-});
+const port = process.env.PORT | 3000;
+app.listen(port, () => winston.info(`Listening on port ${port} ..`));
