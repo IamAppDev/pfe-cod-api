@@ -1,15 +1,14 @@
-const winston = require('winston');
 const db = require('../models/index');
 
 
-module.exports = async () => {
+module.exports = async (logger) => {
 
     await db.sequelize.authenticate().then(() => {
-        winston.info('Connected to db .. ');
+        logger.info('Connected to db .. ');
         return db.sequelize.sync(/*{ force: true }*/);
     })
     .then(() => {
-        winston.info('Tables created .. ');
+        logger.info('Tables created .. ');
     });
 
 };

@@ -6,8 +6,6 @@ const register = async (obj) => {
     const found = await utilisateur.findOne({  where: { email: obj.email }});
 
     if( !found ){
-        //const salt = await bcrypt.genSalt(10);
-        //const hashed = await bcrypt.hash(obj.motdepasse, salt);
         const hashed = await getHashPassword(obj.motdepasse);
         return await utilisateur.create({
             nom: obj.nom,
