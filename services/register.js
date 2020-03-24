@@ -1,7 +1,7 @@
 const {utilisateur} = require('../models/index');
-const {getHashPassword, getToken} = require('../utils/bcrypt');
+const {getHashPassword, getToken, getEmailToken} = require('../utils/bcrypt');
 const {roles} = require('../models/enums/roles');
-const {role} = require('../models/index');
+const sendEmail = require('../utils/sendEmail');
 
 const register = async (obj) => {
 
@@ -20,7 +20,10 @@ const register = async (obj) => {
             // role.findAll({include: utilisateur}).then(res => console.log(res));
             // console.log(res);
             res = res.toJSON();
-            return getToken({ email: res.email, ura: roles.indexOf('ROLE_ADMIN') + 1 });
+            // getToken({ email: res.email, ura: roles.indexOf('ROLE_ADMIN') + 1 });
+            const emailToken = getEmailToken({email: res.email, id: res.id});
+            sendEmail(res.email, `http://localhost:3000/confirmation/${emailToken}`);
+            return;
         })
         .catch((err) =>{
             //console.log(err);

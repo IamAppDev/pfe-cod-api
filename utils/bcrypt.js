@@ -12,5 +12,10 @@ const getToken = (obj) => {
     return jwt.sign(obj, config.get('jwtPrivateKey'), { expiresIn: '1day'});
 };
 
+const getEmailToken = (obj) => {
+    return jwt.sign(obj, config.get('jwtEmailPrivateKey'), { expiresIn: '1day'});
+};
+
 module.exports.getHashPassword = getHashPassword;
 module.exports.getToken = getToken;
+module.exports.getEmailToken = getEmailToken;

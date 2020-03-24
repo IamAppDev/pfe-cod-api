@@ -37,8 +37,13 @@ module.exports = (sequelize, DataTypes, Role) => {
         cin: {
             type: DataTypes.STRING
         },
-        etat: {
-            type: DataTypes.BOOLEAN
+        active: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        },
+        confirme: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         },
         tarif: {
             type: DataTypes.INTEGER
