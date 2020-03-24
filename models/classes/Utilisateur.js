@@ -1,6 +1,6 @@
 const {villes} = require('../enums/villes');
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, DataTypes, Role) => {
 
     const Utilisateur = sequelize.define('utilisateur', {
         id: {
@@ -34,8 +34,14 @@ module.exports = (sequelize, DataTypes) => {
         telephone: {
             type: DataTypes.STRING
         },
-        cin:{
+        cin: {
             type: DataTypes.STRING
+        },
+        etat: {
+            type: DataTypes.BOOLEAN
+        },
+        tarif: {
+            type: DataTypes.INTEGER
         },
         accessToken: {
             type: DataTypes.STRING
@@ -49,20 +55,3 @@ module.exports = (sequelize, DataTypes) => {
 
     return Utilisateur;
 };
-
-/*
-{
-        instanceMethods: {
-            hashPassword: async function() {
-                //const salt = await bcrypt.genSalt(10);
-                //this.motdepasse = await bcrypt.hash(this.motdepasse, salt);
-                console.log('-----------------------------------------hello !!!');
-            }
-        },
-        classMethods: {
-            generateAuthToken: function() {
-                const token = jwt.sign({ email: this.email }, config.get('jwtPrivateKey'));
-                return token;
-            }
-        }
-*/

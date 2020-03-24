@@ -22,8 +22,8 @@ const sequelize = new Sequelize('nodejs', 'root', 'none', {
 });
 
 // instantiation
-const utilisateur = Utilisateur(sequelize, Sequelize);
 const role = Role(sequelize, Sequelize);
+const utilisateur = Utilisateur(sequelize, Sequelize, role);
 const stock = Stock(sequelize, Sequelize);
 const abonnement = Abonnement(sequelize, Sequelize);
 const client = Client(sequelize, Sequelize);
@@ -40,10 +40,10 @@ const commandeProduit = CommandeProduit(sequelize, Sequelize, commande, produit)
 const cmdHistorique = CmdHistorique(sequelize, Sequelize, commande, etatCommande, utilisateur);
 
 // association
-/*role.hasMany(utilisateur);
+role.hasMany(utilisateur);
 utilisateur.belongsTo(role);
 
-utilisateur.belongsTo(stock);
+/*utilisateur.belongsTo(stock);
 stock.hasOne(utilisateur);
 
 utilisateur.hasMany(abonnement);
@@ -54,6 +54,7 @@ client.belongsTo(utilisateur);
 
 payement.hasMany(commande);
 commande.hasOne(payement, { constraints: false });*/
+
 
 
 // exportation

@@ -11,20 +11,22 @@ module.exports = () => {
         format: winston.format.json(),
         defaultMeta: { service: 'user-service' },
         transports: [
-          new winston.transports.File({ filename: 'error.log', level: 'error' }),
-          new winston.transports.File({ filename: 'warn.log', level: 'warn' }),
-          new winston.transports.File({ filename: 'combined.log' })
+          new winston.transports.File({ filename: './log/error.log', level: 'error' }),
+          new winston.transports.File({ filename: './log/warn.log', level: 'warn' }),
+          new winston.transports.File({ filename: './log/combined.log' })
         ],
         exceptionHandlers: [
-          new winston.transports.File({ filename: 'exceptions.log' })
+          new winston.transports.File({ filename: './log/exceptions.log' })
         ]
     });
 
-    /*if (process.env.NODE_ENV !== 'production') {
-        logger.add(new winston.transports.Console({
-           colorize: true, prettyPrint: true 
-        }));
-    };*/
+    if (process.env.NODE_ENV !== 'production') {
+      logger.add(new winston.transports.Console({
+        format: winston.format.combine(
+            winston.format.simple(),
+            winston.format.prettyPrint())
+      }));
+    }
 
     return logger;
 };
