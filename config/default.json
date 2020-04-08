@@ -1,7 +1,9 @@
 {
     "name": "API COD default",
-    "jwtPrivateKey": "IJ8ee34dfs546s332",
+    "server": "http://localhost:3001",
+    "jwtPrivateKey": "t7w!z%C*F-JaNdRgUkXp2s5u8x/A?D(G",
     "jwtEmailPrivateKey": "IJ8ee34dfs546s339FKEN2",
+    "jwtRefreshPrivateKey": "w9z$C&F)J@NcRfUjXn2r4u7x!A%D*G-K",
     "smtpUser": "banadora20182018@gmail.com",
     "smtpPassword": "Bender@1999"
 }

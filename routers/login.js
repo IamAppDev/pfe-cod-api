@@ -8,11 +8,15 @@ router.post('/', async (req, res) => {
 
     const obj = {...req.body};
 
-    if( (Joi.validate(obj, schema)).error ){
+    if( !(Joi.validate(obj, schema)).error ){
         
         const result = await login(obj);
         if( isNaN(result) ) {
-            return res.header('x-auth-token', result).sendStatus(200);
+            // return res.header('x-auth-token', result).sendStatus(200);
+            return res.header({
+                'x-auth-token': result.accessToken,
+                'x-refresh-token': result.refreshToken
+            }).sendStatus(200);
         } else {
             switch(result) {
                 case 1, 4:
@@ -32,7 +36,7 @@ router.post('/', async (req, res) => {
 
 const schema = Joi.object().keys({
     email: Joi.string().email().required(),
-    motdepasse: Joi.string().regex(/^[a-zA-Z0-9]{8,30}$/)
+    motdepasse: Joi.string().regex(/^[a-zA-Z0-9]{8,30}$/).required()
 });
 
 module.exports = router;

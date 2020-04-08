@@ -1,5 +1,5 @@
 const {utilisateur, role} = require('../models/index');
-const {getToken} = require('../utils/bcrypt');
+const {getToken, getRefreshToken} = require('../utils/bcrypt');
 const bcrypt = require('bcrypt');
 
 
@@ -27,7 +27,11 @@ const login =  async (obj) => {
                     id: found.id,
                     role: found['role.libelle']
                 };
-                return getToken(objUser);
+                return {
+                    accessToken: getToken(objUser),
+                    refreshToken: getRefreshToken(objUser)
+                };
+                // return getToken(objUser);
             }
         } else {
             return 4;

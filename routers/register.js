@@ -3,36 +3,37 @@ const router = express.Router();
 const register = require('../services/register');
 const Joi = require('joi');
 
-router.post('/',  async (req, res) => {
-    
-    let dataValidity = false;
-    const obj = {...req.body};
+router.post('/', async (req, res) => {
+	console.log(req.body);
+	const obj = { ...req.body };
 
-    if( !(Joi.validate(obj, schema)).error ) {
-
-        dataValidity = true;
-        const result = await register(obj);
-        if( result instanceof Error ) {
-            switch( result.message ){
-                case '400':
-                    return res.status(400).send('Unique Violation !');
-                default: // 500 or else
-                    return res.status(500).send('Internal Error !');
-            }
-        } else {
-            return res.header('x-auth-token', result).sendStatus(200);
-        }
-
-    }
-
-    if( !dataValidity ) return res.status(400).send('Wrong Data Types !');
+	if (!Joi.validate(obj, schema).error) {
+		const result = await register(obj);
+		if (result instanceof Error) {
+			switch (result.message) {
+				case '400':
+					res.statusMessage = 'UniqueViolation';
+					return res.sendStatus(400);
+				default:
+					// 500 or else => Server Internal Error
+					return res.sendStatus(500);
+			}
+		} else {
+			return res.sendStatus(200);
+		}
+	} else {
+		res.statusMessage = 'DataNotValidated';
+		return res.sendStatus(400);
+	}
 });
 
 const schema = Joi.object().keys({
-    nom: Joi.string().min(3).max(20).required(),
-    prenom: Joi.string().min(3).max(20).required(),
-    email: Joi.string().email().required(),
-    motdepasse: Joi.string().regex(/^[a-zA-Z0-9]{8,30}$/)
+	firstName: Joi.string().min(3).max(20).required(),
+	lastName: Joi.string().min(3).max(20).required(),
+	email: Joi.string().email().required(),
+	password: Joi.string()
+		.regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/)
+		.required()
 });
 
 module.exports = router;

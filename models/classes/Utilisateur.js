@@ -1,4 +1,4 @@
-const {villes} = require('../enums/villes');
+const { villes } = require('../enums/villes');
 
 module.exports = (sequelize, DataTypes, Role) => {
 
@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes, Role) => {
             type: DataTypes.STRING,
             unique: true,
             allowNull: false,
-            validate : {
+            validate: {
                 isEmail: true
             }
         },
@@ -48,7 +48,7 @@ module.exports = (sequelize, DataTypes, Role) => {
         tarif: {
             type: DataTypes.INTEGER
         },
-        accessToken: {
+        refreshToken: {
             type: DataTypes.STRING
         },
         notifToken: {
