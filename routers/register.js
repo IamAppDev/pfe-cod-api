@@ -4,7 +4,6 @@ const register = require('../services/register');
 const Joi = require('joi');
 
 router.post('/', async (req, res) => {
-	console.log(req.body);
 	const obj = { ...req.body };
 
 	if (!Joi.validate(obj, schema).error) {
@@ -15,7 +14,7 @@ router.post('/', async (req, res) => {
 					res.statusMessage = 'UniqueViolation';
 					return res.sendStatus(400);
 				default:
-					// 500 or else => Server Internal Error
+					res.statusMessage = 'NotAdded';
 					return res.sendStatus(500);
 			}
 		} else {

@@ -1,20 +1,15 @@
-const config = require('config');
-const jwt = require('jsonwebtoken');
-
+const { verifyToken } = require('../utils/bcrypt');
 
 const auth = (req, res, next) => {
+	const token = req.header('x-auth-token');
 
-    const token = req.header('x-auth-token');
-    if( !token ) return res.sendStatus(401);
-
-    try {
-        jwt.verify(token, config.get('jwtPrivateKey'));
-        next();
-    } catch(err) {
-        res.status(401).send('Invalid token.');
-    }
-
+	try {
+		const { role } = verifyToken(token, 'jwtPrivateKey');
+		res.locals.role = role;
+		next();
+	} catch (err) {
+		res.sendStatus(401);
+	}
 };
-
 
 module.exports = auth;

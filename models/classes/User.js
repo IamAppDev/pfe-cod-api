@@ -2,17 +2,17 @@ const { villes } = require('../enums/villes');
 
 module.exports = (sequelize, DataTypes, Role) => {
 
-    const Utilisateur = sequelize.define('utilisateur', {
+    const User = sequelize.define('user', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
             allowNull: false
         },
-        nom: {
+        firstName: {
             type: DataTypes.STRING
         },
-        prenom: {
+        lastName: {
             type: DataTypes.STRING
         },
         email: {
@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes, Role) => {
                 isEmail: true
             }
         },
-        motdepasse: {
+        password: {
             type: DataTypes.STRING,
             allowNull: false
         },
@@ -58,5 +58,5 @@ module.exports = (sequelize, DataTypes, Role) => {
         freezeTableName: true
     });
 
-    return Utilisateur;
+    return User;
 };

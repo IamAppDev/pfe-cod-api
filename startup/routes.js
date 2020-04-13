@@ -5,10 +5,11 @@ const register = require('../routers/register');
 const login = require('../routers/login');
 const confirmation = require('../routers/confirmation');
 const auth = require('../middleware/auth');
+const authAdmin = require('../middleware/authAdmin');
 const admin = require('../routers/admin');
 const error = require('../middleware/error');
 const cors = require('../middleware/cors');
-const getNewAccesToken = require('../routers/getNewAccesToken');
+const getNewToken = require('../routers/getNewToken');
 
 module.exports = (app, logger) => {
     app.use(express.json());
@@ -18,10 +19,10 @@ module.exports = (app, logger) => {
     app.use('/register', register);
     app.use('/login', login);
     app.use('/confirmation' ,confirmation);
-    app.use('/refresh/token', getNewAccesToken);
+    app.use('/refresh/token', getNewToken);
     app.use(auth); // before going down user need to auth
     // app.use('/sadmin');
-    app.use('/admin', admin);
+    app.use('/admin', authAdmin, admin);
     // app.use('/operator');
     // app.use('/delivryman');
     app.use(error(logger));

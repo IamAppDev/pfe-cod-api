@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const Utilisateur = require('./classes/Utilisateur');
+const User = require('./classes/User');
 const Role = require('./classes/Role');
 const Stock = require('./classes/Stock');
 const Abonnement = require('./classes/Abonnement');
@@ -23,7 +23,7 @@ const sequelize = new Sequelize('nodejs', 'root', 'none', {
 
 // instantiation
 const role = Role(sequelize, Sequelize);
-const utilisateur = Utilisateur(sequelize, Sequelize, role);
+const user = User(sequelize, Sequelize, role);
 const stock = Stock(sequelize, Sequelize);
 const abonnement = Abonnement(sequelize, Sequelize);
 const client = Client(sequelize, Sequelize);
@@ -37,20 +37,20 @@ const message = Message(sequelize, Sequelize);
 const produit = Produit(sequelize, Sequelize);
 const stockProduit = StockProduit(sequelize, Sequelize, stock, produit);
 const commandeProduit = CommandeProduit(sequelize, Sequelize, commande, produit);
-const cmdHistorique = CmdHistorique(sequelize, Sequelize, commande, etatCommande, utilisateur);
+const cmdHistorique = CmdHistorique(sequelize, Sequelize, commande, etatCommande, user);
 
 // association
-role.hasMany(utilisateur);
-utilisateur.belongsTo(role);
+role.hasMany(user);
+user.belongsTo(role);
 
-/*utilisateur.belongsTo(stock);
-stock.hasOne(utilisateur);
+/*user.belongsTo(stock);
+stock.hasOne(user);
 
-utilisateur.hasMany(abonnement);
-abonnement.belongsTo(utilisateur);
+user.hasMany(abonnement);
+abonnement.belongsTo(user);
 
-utilisateur.hasMany(client);
-client.belongsTo(utilisateur);
+user.hasMany(client);
+client.belongsTo(user);
 
 payement.hasMany(commande);
 commande.hasOne(payement, { constraints: false });*/
@@ -58,7 +58,7 @@ commande.hasOne(payement, { constraints: false });*/
 
 
 // exportation
-module.exports.utilisateur = utilisateur;
+module.exports.user = user;
 module.exports.role = role;
 module.exports.stock = stock;
 module.exports.abonnement = abonnement;

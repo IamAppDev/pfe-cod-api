@@ -1,34 +1,28 @@
-const { utilisateur } = require('../models/index');
-const {
-	getHashPassword,
-	getEmailToken,
-	getRefreshToken
-} = require('../utils/bcrypt');
+const { user } = require('../models/index');
+const { getHashPassword, getEmailToken, getRefreshToken } = require('../utils/bcrypt');
 const { roles } = require('../models/enums/roles');
 const sendEmail = require('../utils/sendEmail');
 const config = require('config');
 
 const register = async (obj) => {
-	const found = await utilisateur.findOne({ where: { email: obj.email } });
+	const found = await user.findOne({ where: { email: obj.email } });
 
 	if (!found) {
-		const hashed = await getHashPassword(obj.password);
-		const refreshToken = getRefreshToken({ email: obj.email });
-		return await utilisateur
+		const { firstName, lastName, email, password } = obj;
+		const hashed = await getHashPassword(password);
+		const refreshToken = getRefreshToken({ email, role: 'ROLE_ADMIN' });
+		const emailToken = getEmailToken({ email, role: 'ROLE_ADMIN' });
+		return await user
 			.create({
-				prenom: obj.firstName,
-				nom: obj.lastName,
-				email: obj.email,
-				motdepasse: hashed,
+				firstName,
+				lastName,
+				email,
+				password: hashed,
 				refreshToken,
 				roleId: roles.indexOf('ROLE_ADMIN') + 1
 			})
 			.then((res) => {
-				const emailToken = getEmailToken({ email: res.email });
-				sendEmail(
-					res.email,
-					`${config.get('server')}/confirmation/${emailToken}`
-				);
+				sendEmail(res.email, `${config.get('server')}/confirmation/${emailToken}`);
 				return;
 			})
 			.catch(() => {
