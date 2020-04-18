@@ -1,14 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const usersRouter = require('./admin/users');
 
-
-
-router.post('/', (req, res, next) => {
-
-    res.sendStatus(200);
-
-});
-
-
+router.use('/users', usersRouter);
 
 module.exports = router;

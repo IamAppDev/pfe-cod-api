@@ -8,7 +8,7 @@ router.post('/', async (req, res, next) => {
     let result = null;
     try {
         const { email } = verifyToken(token, 'jwtEmailPrivateKey');
-		result = await user.update({ confirme: true, active: true }, { where: { email } });
+		result = await user.update({ confirmed: true, active: true }, { where: { email } });
     } catch (ex) {
 		return res.sendStatus(404);
 	}

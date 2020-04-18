@@ -9,7 +9,7 @@ const getHashPassword = async (password) => {
 };
 
 const getToken = (obj) => {
-	return jwt.sign(obj, config.get('jwtPrivateKey'), { expiresIn: '2000ms' }); // 15 min
+	return jwt.sign(obj, config.get('jwtPrivateKey'), { expiresIn: '1day' }); // 15 min
 };
 
 const getEmailToken = (obj) => {

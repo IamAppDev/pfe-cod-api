@@ -2,46 +2,49 @@ const Sequelize = require('sequelize');
 const User = require('./classes/User');
 const Role = require('./classes/Role');
 const Stock = require('./classes/Stock');
-const Abonnement = require('./classes/Abonnement');
+const Subscription = require('./classes/Subscription');
 const Client = require('./classes/Client');
-const Commande = require('./classes/Commande');
-const Payement = require('./classes/Payement');
+const Order = require('./classes/Order');
+const Payment = require('./classes/Payment');
 const Source = require('./classes/Source');
-const ServiceLivraison = require('./classes/ServiceLivraison');
-const Compte = require('./classes/Compte');
-const EtatCommande = require('./classes/EtatCommande');
+const DeliveryService = require('./classes/DeliveryService');
+const Account = require('./classes/Account');
+const OrderState = require('./classes/OrderState');
 const Message = require('./classes/Message');
-const Produit = require('./classes/Produit');
-const StockProduit = require('./classes/StockProduit');
-const CommandeProduit = require('./classes/CommandeProduit');
-const CmdHistorique = require('./classes/CmdHistorique');
+const Product = require('./classes/Product');
+const StockProduct = require('./classes/StockProduct');
+const OrderProduct = require('./classes/OrderProduct');
+const OrderHistory = require('./classes/OrderHistory');
 
 const sequelize = new Sequelize('nodejs', 'root', 'none', {
-    host: 'localhost',
-    dialect: 'mysql'
+	host: 'localhost',
+	dialect: 'mysql'
 });
 
 // instantiation
 const role = Role(sequelize, Sequelize);
 const user = User(sequelize, Sequelize, role);
 const stock = Stock(sequelize, Sequelize);
-const abonnement = Abonnement(sequelize, Sequelize);
+const subscription = Subscription(sequelize, Sequelize);
 const client = Client(sequelize, Sequelize);
-const commande = Commande(sequelize, Sequelize);
-const payement = Payement(sequelize, Sequelize);
+const order = Order(sequelize, Sequelize);
+const payment = Payment(sequelize, Sequelize);
 const source = Source(sequelize, Sequelize);
-const serviceLivraison = ServiceLivraison(sequelize, Sequelize);
-const compte = Compte(sequelize, Sequelize);
-const etatCommande = EtatCommande(sequelize, Sequelize);
+const deliveryService = DeliveryService(sequelize, Sequelize);
+const account = Account(sequelize, Sequelize);
+const orderState = OrderState(sequelize, Sequelize);
 const message = Message(sequelize, Sequelize);
-const produit = Produit(sequelize, Sequelize);
-const stockProduit = StockProduit(sequelize, Sequelize, stock, produit);
-const commandeProduit = CommandeProduit(sequelize, Sequelize, commande, produit);
-const cmdHistorique = CmdHistorique(sequelize, Sequelize, commande, etatCommande, user);
+const product = Product(sequelize, Sequelize);
+const stockProduct = StockProduct(sequelize, Sequelize, stock, product);
+const orderProduct = OrderProduct(sequelize, Sequelize, order, product);
+const orderHistory = OrderHistory(sequelize, Sequelize, order, orderState, user);
 
 // association
 role.hasMany(user);
 user.belongsTo(role);
+
+//
+user.hasOne(user, { as: 'boss', foreignKey: 'bossId', useJunctionTable: false });
 
 /*user.belongsTo(stock);
 stock.hasOne(user);
@@ -55,24 +58,22 @@ client.belongsTo(user);
 payement.hasMany(commande);
 commande.hasOne(payement, { constraints: false });*/
 
-
-
 // exportation
 module.exports.user = user;
 module.exports.role = role;
 module.exports.stock = stock;
-module.exports.abonnement = abonnement;
+module.exports.subscription = subscription;
 module.exports.client = client;
-module.exports.commande = commande;
-module.exports.payement = payement;
+module.exports.order = order;
+module.exports.payment = payment;
 module.exports.source = source;
-module.exports.serviceLivraison = serviceLivraison;
-module.exports.compte = compte;
-module.exports.etatCommande = etatCommande;
+module.exports.deliveryService = deliveryService;
+module.exports.account = account;
+module.exports.orderState = orderState;
 module.exports.message = message;
-module.exports.produit = produit;
-module.exports.stockProduit = stockProduit;
-module.exports.commandeProduit = commandeProduit;
-module.exports.cmdHistorique = cmdHistorique;
+module.exports.product = product;
+module.exports.stockProduct = stockProduct;
+module.exports.orderProduct = orderProduct;
+module.exports.orderHistory = orderHistory;
 
 module.exports.sequelize = sequelize;

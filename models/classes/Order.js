@@ -1,18 +1,15 @@
 module.exports = (sequelize, DataTypes) => {
 
-    const Produit = sequelize.define('produit', {
+    const Order = sequelize.define('commande', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
             allowNull: false
-        },
-        libelle: {
-            type: DataTypes.STRING
         }
     }, {
         freezeTableName: true
     });
 
-    return Produit;
+    return Order;
 };

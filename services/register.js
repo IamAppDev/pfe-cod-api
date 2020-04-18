@@ -1,7 +1,7 @@
 const { user } = require('../models/index');
 const { getHashPassword, getEmailToken, getRefreshToken } = require('../utils/bcrypt');
 const { roles } = require('../models/enums/roles');
-const sendEmail = require('../utils/sendEmail');
+const { sendEmailRegistration } = require('../utils/sendEmail');
 const config = require('config');
 
 const register = async (obj) => {
@@ -19,10 +19,10 @@ const register = async (obj) => {
 				email,
 				password: hashed,
 				refreshToken,
-				roleId: roles.indexOf('ROLE_ADMIN') + 1
+				roleLibelle: roles.indexOf('ROLE_ADMIN') + 1
 			})
 			.then((res) => {
-				sendEmail(res.email, `${config.get('server')}/confirmation/${emailToken}`);
+				sendEmailRegistration(res.email, `${config.get('server')}/confirmation/${emailToken}`);
 				return;
 			})
 			.catch(() => {

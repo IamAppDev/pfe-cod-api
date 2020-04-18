@@ -16,7 +16,7 @@ router.post('/', async (req, res, next) => {
 		if (!result) {
 			return res.sendStatus(400);
 		} else {
-			const newToken = getToken({ email, role: result['role.libelle'] });
+			const newToken = getToken({ userId: result.id, email, role: result['role.libelle'] });
 			return res.header('x-auth-token', newToken).sendStatus(200);
 		}
 	} catch (err) {

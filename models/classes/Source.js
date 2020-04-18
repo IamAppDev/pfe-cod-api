@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             allowNull: false
         },
-        libelle: {
+        name: {
             type: DataTypes.STRING
         },
         type: {

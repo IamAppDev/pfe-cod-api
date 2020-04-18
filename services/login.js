@@ -15,14 +15,15 @@ const login = async (obj) => {
 	} else {
 		const isValid = await bcrypt.compare(password, found.password);
 		if (isValid) {
-			if (!found.confirme) {
+			if (!found.confirmed) {
 				return 2;
 			} else if (!found.active) {
 				return 3;
 			} else {
 				const objUser = {
+					userId: found.id,
 					email: found.email,
-					role: found['role.libelle']
+					role: found.roleLibelle
 				};
 				const refreshToken = getRefreshToken(objUser);
 				await user.update({ refreshToken }, { where: { email } });

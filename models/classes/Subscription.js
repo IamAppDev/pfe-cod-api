@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
 
-    const Abonnement = sequelize.define('abonnement', {
+    const Subscription = sequelize.define('abonnement', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -28,5 +28,5 @@ module.exports = (sequelize, DataTypes) => {
         freezeTableName: true
     });
 
-    return Abonnement;
+    return Subscription;
 };

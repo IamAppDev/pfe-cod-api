@@ -11,12 +11,12 @@ module.exports = async (logger) => {
     .then(() => {
         logger.info('Tables created .. ');
         // creation des roles
-        db.role.bulkCreate([
-            {libelle: roles[0]},
-            {libelle: roles[1]},
-            {libelle: roles[2]},
-            {libelle: roles[3]}
-        ]).then().catch(err => console.log(err));
+        // db.role.bulkCreate([
+        //     {libelle: roles[0]},
+        //     {libelle: roles[1]},
+        //     {libelle: roles[2]},
+        //     {libelle: roles[3]}
+        // ]).then().catch(err => console.log(err));
     });
 
 };

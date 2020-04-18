@@ -1,4 +1,4 @@
-const { villes } = require('../enums/villes');
+const { cities } = require('../enums/cities');
 
 module.exports = (sequelize, DataTypes, Role) => {
 
@@ -27,25 +27,25 @@ module.exports = (sequelize, DataTypes, Role) => {
             type: DataTypes.STRING,
             allowNull: false
         },
-        ville: {
+        city: {
             type: DataTypes.ENUM,
-            values: villes
+            values: cities
         },
-        telephone: {
+        phone: {
             type: DataTypes.STRING
         },
-        cin: {
+        idCard: {
             type: DataTypes.STRING
         },
         active: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
         },
-        confirme: {
+        confirmed: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
         },
-        tarif: {
+        price: {
             type: DataTypes.INTEGER
         },
         refreshToken: {

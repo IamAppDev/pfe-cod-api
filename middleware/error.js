@@ -9,6 +9,6 @@ module.exports = (err, req, res, next) => {
 module.exports = (logger) => {
     return (err, req, res, next) => {
         logger.error(err.message, err);
-        res.status(500).send('Something failed.');
+        res.sendStatus(500);
     };
 };

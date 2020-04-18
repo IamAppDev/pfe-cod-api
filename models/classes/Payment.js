@@ -1,18 +1,18 @@
 module.exports = (sequelize, DataTypes) => {
 
-    const Compte = sequelize.define('compte', {
+    const Payment = sequelize.define('payment', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
             allowNull: false
         },
-        ndc: {
+        ref: {
             type: DataTypes.STRING
         }
     }, {
         freezeTableName: true
     });
 
-    return Compte;
+    return Payment;
 };

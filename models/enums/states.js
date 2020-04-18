@@ -1,0 +1,1 @@
+module.exports.states = ['nouveau','confirme','expedie','livre', 'paye', 'annulee', 'en attente', 'fini'];

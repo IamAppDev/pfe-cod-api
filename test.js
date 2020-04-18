@@ -37,6 +37,15 @@
 // 	console.log('jwt : ', getToken(obj, 'jwtPrivateKey'));
 // })();
 
+// const { sendInvitation } = require('./utils/sendEmail');
+
+// sendInvitation('yassine', 'bouhoutayassine@gmail.com', 'thepass', 'owner', 'boss');
+
+// const { invite } = require('./services/admin/users');
+
+// invite(2, 3);
 
 
+const {getUser} = require('./services/admin/users');
 
+getUser(2);

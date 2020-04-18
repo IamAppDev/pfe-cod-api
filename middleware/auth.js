@@ -4,8 +4,9 @@ const auth = (req, res, next) => {
 	const token = req.header('x-auth-token');
 
 	try {
-		const { role } = verifyToken(token, 'jwtPrivateKey');
+		const { userId, role } = verifyToken(token, 'jwtPrivateKey');
 		res.locals.role = role;
+		res.locals.userId = userId;
 		next();
 	} catch (err) {
 		res.sendStatus(401);
