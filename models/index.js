@@ -3,7 +3,7 @@ const User = require('./classes/User');
 const Role = require('./classes/Role');
 const Stock = require('./classes/Stock');
 const Subscription = require('./classes/Subscription');
-const Client = require('./classes/Client');
+const Customer = require('./classes/Customer');
 const Order = require('./classes/Order');
 const Payment = require('./classes/Payment');
 const Source = require('./classes/Source');
@@ -26,7 +26,7 @@ const role = Role(sequelize, Sequelize);
 const user = User(sequelize, Sequelize, role);
 const stock = Stock(sequelize, Sequelize);
 const subscription = Subscription(sequelize, Sequelize);
-const client = Client(sequelize, Sequelize);
+const customer = Customer(sequelize, Sequelize);
 const order = Order(sequelize, Sequelize);
 const payment = Payment(sequelize, Sequelize);
 const source = Source(sequelize, Sequelize);
@@ -43,8 +43,16 @@ const orderHistory = OrderHistory(sequelize, Sequelize, order, orderState, user)
 role.hasMany(user);
 user.belongsTo(role);
 
-//
 user.hasOne(user, { as: 'boss', foreignKey: 'bossId', useJunctionTable: false });
+
+user.hasMany(customer);
+customer.belongsTo(user);
+
+stock.hasOne(user);
+user.belongsTo(stock);
+
+product.belongsToMany(stock, {through: 'stockProduct'});
+stock.belongsToMany(product, {through: 'stockProduct'});
 
 /*user.belongsTo(stock);
 stock.hasOne(user);
@@ -63,7 +71,7 @@ module.exports.user = user;
 module.exports.role = role;
 module.exports.stock = stock;
 module.exports.subscription = subscription;
-module.exports.client = client;
+module.exports.customer = customer;
 module.exports.order = order;
 module.exports.payment = payment;
 module.exports.source = source;

@@ -21,6 +21,7 @@ router.post('/add', async (req, res, next) => {
 	if (!Joi.validate(user, schema).error) {
 		const bossId = res.locals.userId;
 		const passwordNotHashed = user.password;
+		delete user.id;
 		user.confirmed = true;
 		user.active = false;
 		user.bossId = bossId;
@@ -29,11 +30,18 @@ router.post('/add', async (req, res, next) => {
 		if (boss) {
 			const result = await add(user);
 			sendInvitation(user.firstName, user.email, passwordNotHashed, boss.firstName, boss.lastName);
-			result === 1 ? res.sendStatus(400) : res.sendStatus(200);
+			if (result === 1) {
+				res.sendStatus(200);
+			} else {
+				res.statusMessage = 'NotAdded1';
+				res.sendStatus(400);
+			}
 		} else {
+			res.statusMessage = 'NotAdded2';
 			res.sendStatus(400);
 		}
 	} else {
+		res.statusMessage = 'DataNotValidated';
 		res.sendStatus(400);
 	}
 });
@@ -44,8 +52,14 @@ router.post('/update', async (req, res, next) => {
 		user.bossId = res.locals.userId;
 		user.password = await getHashPassword(user.password);
 		const result = await update(user);
-		result === 1 ? res.sendStatus(200) : res.sendStatus(500);
+		if (result === 1) {
+			res.sendStatus(200);
+		} else {
+			res.statusMessage = 'NotUpdated';
+			res.sendStatus(400);
+		}
 	} else {
+		res.statusMessage = 'DataNotValidated';
 		res.sendStatus(400);
 	}
 });
@@ -62,9 +76,11 @@ router.post('/resetPassword', async (req, res, next) => {
 			sendPasswordReset(user.firstName, user.email, passwordNotHashed);
 			res.sendStatus(200);
 		} else {
-			res.sendStatus(500);
+			res.statusMessage = 'NotAdded';
+			res.sendStatus(400);
 		}
 	} else {
+		res.statusMessage = 'DataNotValidated';
 		res.sendStatus(400);
 	}
 });

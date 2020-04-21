@@ -1,8 +1,8 @@
 const { cities } = require('../enums/cities');
 
 module.exports = (sequelize, DataTypes) => {
-	const Client = sequelize.define(
-		'client',
+	const Customer = sequelize.define(
+		'customer',
 		{
 			id: {
 				type: DataTypes.INTEGER,
@@ -16,11 +16,13 @@ module.exports = (sequelize, DataTypes) => {
 			lastName: {
 				type: DataTypes.STRING
 			},
-			adress: {
+			address: {
 				type: DataTypes.STRING
 			},
 			phone: {
-				type: DataTypes.STRING
+				type: DataTypes.STRING,
+				unique: true,
+				allowNull: false
 			},
 			city: {
 				type: DataTypes.ENUM,
@@ -32,5 +34,5 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	);
 
-	return Client;
+	return Customer;
 };

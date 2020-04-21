@@ -1,4 +1,4 @@
-const { user, role } = require('../../models/index');
+const { user, stock, sequelize } = require('../../models/index');
 
 const getAll = async (bossId) => {
 	const usersList = await user.findAll({
@@ -23,23 +23,38 @@ const getAll = async (bossId) => {
 };
 
 const add = async (userObj) => {
-	return await user
-		.create({ ...userObj })
-		.then(() => {
+	if (userObj.roleLibelle === 'ROLE_DELIVERYMAN') {
+		const transaction = await sequelize.transaction();
+		try {
+			const userInstance = await user.create({ ...userObj, active: true }, { transaction });
+			await userInstance.createStock({}, { transaction });
+			await transaction.commit();
 			return 1;
-		})
-		.catch(() => {
+		} catch (err) {
+			await transaction.rollback();
 			return 2;
-		});
+		}
+	} else {
+		return await user
+			.create({ ...userObj })
+			.then(() => {
+				return 1;
+			})
+			.catch(() => {
+				return 2;
+			});
+	}
 };
 
 const update = async (userObj) => {
+	const id = userObj.id;
+	delete userObj.id;
 	return await user
 		.update(
 			{ ...userObj },
 			{
 				where: {
-					id: userObj.id
+					id
 				}
 			}
 		)

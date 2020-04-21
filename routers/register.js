@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
 					return res.sendStatus(400);
 				default:
 					res.statusMessage = 'NotAdded';
-					return res.sendStatus(500);
+					return res.sendStatus(400);
 			}
 		} else {
 			return res.sendStatus(200);
