@@ -10,7 +10,7 @@ router.post('/', async (req, res, next) => {
 		const { email } = verifyToken(refreshToken, 'jwtRefreshPrivateKey');
 		const result = await user.findOne({
 			raw: true,
-			where: { email, refreshToken, active: true, confirme: true },
+			where: { email, refreshToken, active: true, confirmed: true },
 			include: { model: role }
 		});
 		if (!result) {

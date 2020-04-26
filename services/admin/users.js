@@ -1,7 +1,9 @@
 const { user, stock, sequelize } = require('../../models/index');
 
-const getAll = async (bossId) => {
-	const usersList = await user.findAll({
+const getAll = async (bossId, offset, limit) => {
+	const usersList = await user.findAndCountAll({
+		offset,
+		limit,
 		where: {
 			bossId,
 			roleLibelle: ['ROLE_OPERATOR', 'ROLE_DELIVERYMAN']
@@ -13,10 +15,12 @@ const getAll = async (bossId) => {
 			'email',
 			'phone',
 			'city',
+			'price',
 			'idCard',
 			'createdAt',
 			'updatedAt',
-			'roleLibelle'
+			'roleLibelle',
+			'active'
 		]
 	});
 	return usersList;
@@ -26,11 +30,12 @@ const add = async (userObj) => {
 	if (userObj.roleLibelle === 'ROLE_DELIVERYMAN') {
 		const transaction = await sequelize.transaction();
 		try {
-			const userInstance = await user.create({ ...userObj, active: true }, { transaction });
+			const userInstance = await user.create({ ...userObj }, { transaction });
 			await userInstance.createStock({}, { transaction });
 			await transaction.commit();
 			return 1;
 		} catch (err) {
+			console.log(err);
 			await transaction.rollback();
 			return 2;
 		}
@@ -40,7 +45,8 @@ const add = async (userObj) => {
 			.then(() => {
 				return 1;
 			})
-			.catch(() => {
+			.catch((err) => {
+				console.log(err);
 				return 2;
 			});
 	}

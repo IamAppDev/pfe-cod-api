@@ -1,1 +1,1 @@
-module.exports.cities = ['marrakech','casablanca','rabat'];
+module.exports.cities = ['marrakech', 'casablanca', 'agadir', 'tanger', 'laayoune', 'fes', 'tetouan', 'rabat'];
