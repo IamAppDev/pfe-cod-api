@@ -1,22 +1,50 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
-const { add, addBulk, update } = require('../../services/admin/customers');
+const { getAll, add, addBulk, update, del } = require('../../services/admin/customers');
 const { cities } = require('../../models/enums/cities');
+
+router.get('/getAll/:offset?/:limit?', async (req, res, next) => {
+	const bossId = res.locals.userId;
+	let { offset, limit } = req.params;
+	if (offset && limit) {
+		try {
+			offset = parseInt(offset);
+			limit = parseInt(limit);
+		} catch (err) {
+			offset = 0;
+			limit = 0;
+		}
+	} else {
+		offset = 0;
+		limit = 0;
+	}
+	if (bossId) {
+		const customerList = await getAll(bossId, offset, limit);
+		res.status(200).send(customerList);
+	} else {
+		res.sendStatus(404);
+	}
+});
 
 router.post('/add', async (req, res, next) => {
 	const customer = req.body;
+	const bossId = res.locals.userId;
 	if (!Joi.validate(customer, schema).error) {
 		customer.userId = res.locals.userId;
-		delete customer.id;
-		const result = await add(customer);
-		if (result === 1) {
-			res.sendStatus(200);
-		} else {
-			res.statusMessage = 'NotAdded';
-			res.sendStatus(400);
+		const result = await add(customer, bossId);
+		switch (result) {
+			case 1:
+				return res.sendStatus(200);
+			case 2:
+				res.statusMessage = 'Exist';
+				return res.sendStatus(400);
+			case 3:
+				res.statusMessage = 'NotAdded';
+				return res.sendStatus(400);
 		}
 	} else {
+		res.statusMessage = 'DataNotValidated';
 		res.sendStatus(400);
 	}
 });
@@ -39,23 +67,49 @@ router.post('/addBulk', async (req, res, next) => {
 			res.sendStatus(400);
 		}
 	} else {
+		res.statusMessage = 'DataNotValidated';
 		res.sendStatus(400);
 	}
 });
 
 router.post('/update', async (req, res, next) => {
 	const customer = req.body;
+	const bossId = res.locals.userId;
 	if (!Joi.validate(customer, schemaUpdate).error) {
 		customer.userId = res.locals.userId;
-		const result = await update(customer);
-		if (result === 1) {
-			res.sendStatus(200);
-		} else {
-			res.statusMessage = 'NotUpdated';
-			res.sendStatus(400);
+		const result = await update(customer, bossId);
+		switch (result) {
+			case 1:
+				return res.sendStatus(200);
+			case 2:
+				res.statusMessage = 'NotUpdated';
+				return res.sendStatus(400);
+			case 3:
+				res.statusMessage = 'Exist';
+				return res.sendStatus(400);
 		}
 	} else {
+		res.statusMessage = 'DataNotValidated';
 		res.sendStatus(400);
+	}
+});
+
+router.delete('/delete/:id', async (req, res, next) => {
+	const customerId = req.params.id;
+	if (!req.params.id) {
+		res.statusMessage = 'NoIdProvided';
+		return res.sendStatus(400);
+	}
+	const result = await del(customerId);
+	switch (result) {
+		case 1:
+			return res.sendStatus(200);
+		case 2:
+			res.statusMessage = 'OrderExist';
+			return res.sendStatus(400);
+		case 3:
+			res.statusMessage = 'NotDeleted';
+			return res.sendStatus(400);
 	}
 });
 
@@ -70,8 +124,8 @@ const schema = Joi.object().keys({
 const schemaUpdate = Joi.object().keys({
 	id: Joi.number().required(),
 	firstName: Joi.string().min(3).required(),
-	lastName: Joi.string(),
-	phone: Joi.string().required(),
+	lastName: Joi.string().allow(null),
+	phone: Joi.string(),
 	city: Joi.string().valid(cities).required(),
 	address: Joi.string().required()
 });

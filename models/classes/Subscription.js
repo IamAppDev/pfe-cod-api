@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
 
-    const Subscription = sequelize.define('abonnement', {
+    const Subscription = sequelize.define('subscription', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,

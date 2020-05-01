@@ -20,7 +20,8 @@ const getAll = async (bossId, offset, limit) => {
 			'createdAt',
 			'updatedAt',
 			'roleLibelle',
-			'active'
+			'active',
+			[sequelize.fn('date_format', sequelize.col('createdAt'), '%d-%m-%Y'), 'createdAt']
 		]
 	});
 	return usersList;

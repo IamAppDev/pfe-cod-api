@@ -20,9 +20,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.STRING
 			},
 			phone: {
-				type: DataTypes.STRING,
-				unique: true,
-				allowNull: false
+				type: DataTypes.STRING
 			},
 			city: {
 				type: DataTypes.ENUM,

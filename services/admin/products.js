@@ -1,4 +1,4 @@
-const { user, stock, product, sequelize } = require('../../models/index');
+const { user, stock, product, stockProduct, sequelize } = require('../../models/index');
 const { Op } = require('sequelize');
 
 const add = async (productObj, userId) => {
@@ -45,18 +45,28 @@ const update = async (productObj, userId) => {
 		]
 	});
 	if (userInstance) {
+		const productInstance = userInstance.stock.products[0];
 		const stockProductInstance = userInstance.stock.products[0].stockProduct;
 		stockProductInstance.quantity = productObj.quantity;
-		return await stockProductInstance
-			.save()
-			.then(() => {
-				return 1;
-			})
-			.catch(() => {
-				return 2;
-			});
+
+		productInstance.name = productObj.name;
+		productInstance.price = productObj.price;
+		productInstance.color = productObj.color;
+		productInstance.size = productObj.size;
+		productInstance.category = productObj.category;
+
+		const transaction = await sequelize.transaction();
+		try {
+			await productInstance.save({ transaction });
+			await stockProductInstance.save({ transaction });
+			await transaction.commit();
+			return 1;
+		} catch (ex) {
+			await transaction.rollback();
+			return 2;
+		}
 	} else {
-		return 2;
+		return 3;
 	}
 };
 
@@ -115,7 +125,98 @@ const affect = async (bossId, infoAffect) => {
 	}
 };
 
-const getAll = async (bossId) => {
+const del = async (productId) => {
+	const countAffected = await stockProduct.count({
+		where: {
+			productId
+		}
+	});
+	if (countAffected > 1) {
+		return 2;
+	} else {
+		return await product
+			.destroy({
+				where: {
+					id: productId
+				}
+			})
+			.then(() => {
+				return 1;
+			})
+			.catch(() => {
+				return 3;
+			});
+	}
+};
+
+// const getAll = async (bossId, offset, limit) => {
+// 	let products = await product.findAll({
+// 		include: [
+// 			{
+// 				model: stock,
+// 				include: [
+// 					{
+// 						model: user
+// 					}
+// 				]
+// 			}
+// 		],
+// 		where: {
+// 			[Op.or]: [
+// 				{
+// 					'$stocks.user.id$': bossId
+// 				},
+// 				{ '$stocks.user.bossId$': bossId }
+// 			]
+// 		}
+// 	});
+
+// 	const count = products.length;
+// 	if (!(offset === 0 && limit === 0)) {
+// 		products = products.slice(offset, limit + offset);
+// 	}
+
+// 	let allProducts = [];
+
+// 	for (let product of products) {
+// 		let stocks = [];
+// 		let quantity = 0;
+// 		for (let stock of product.stocks) {
+// 			if (stock.user.bossId) {
+// 				stocks.push({
+// 					quantity: stock.stockProduct.quantity,
+// 					user: {
+// 						id: stock.user.id,
+// 						firstName: stock.user.firstName,
+// 						lastName: stock.user.lastName,
+// 						city: stock.user.city
+// 					}
+// 				});
+// 			} else {
+// 				quantity = stock.stockProduct.quantity;
+// 			}
+// 		}
+
+// 		allProducts.push({
+// 			id: product.id,
+// 			name: product.name,
+// 			price: product.price,
+// 			size: product.size,
+// 			color: product.color,
+// 			weight: product.weight,
+// 			category: product.category,
+// 			quantity,
+// 			stocks
+// 		});
+// 	}
+
+// 	return {
+// 		count,
+// 		rows: allProducts
+// 	};
+// };
+
+const getAll = async (bossId, offset, limit) => {
 	try {
 		const userList = await user.findAll({
 			where: {
@@ -140,10 +241,10 @@ const getAll = async (bossId) => {
 			raw: true
 		});
 
-		const productList = userList
+		let productList = userList
 			.filter((user) => !user.bossId)
 			.map((user) => {
-				if (!user['products.id']) {
+				if (user['stock.products.id']) {
 					return {
 						id: user['stock.products.id'],
 						name: user['stock.products.name'],
@@ -151,47 +252,78 @@ const getAll = async (bossId) => {
 						weight: user['stock.products.weight'],
 						size: user['stock.products.size'],
 						color: user['stock.products.color'],
+						quantity: user['stock.products.stockProduct.quantity'],
 						category: user['stock.products.category'],
 						createdAt: user['stock.products.createdAt']
 					};
 				}
 			});
 
+		if (productList.length === 1 && !productList.length[0]) {
+			productList = [];
+		}
+
 		let cpt = -1;
 		const usersStock = [];
 		userList.forEach((user) => {
-			if (cpt !== user.id) {
-				usersStock.push({
-					id: user.id,
-					firstName: user.firstName,
-					lastName: user.lastName,
-					city: user.city,
-					productList: user['stock.products.id']
-						? [
-								{
+			if (user.bossId) {
+				if (cpt !== user.id) {
+					usersStock.push({
+						id: user.id,
+						firstName: user.firstName,
+						lastName: user.lastName,
+						city: user.city,
+						productList: user['stock.products.id']
+							? [
+									{
+										id: user['stock.products.id'],
+										name: user['stock.products.name'],
+										quantity: user['stock.products.stockProduct.quantity']
+									}
+							  ]
+							: []
+					});
+				} else {
+					usersStock[usersStock.length - 1].productList.push(
+						user['stock.products.id']
+							? {
 									id: user['stock.products.id'],
 									name: user['stock.products.name'],
 									quantity: user['stock.products.stockProduct.quantity']
-								}
-						  ]
-						: []
-				});
-			} else {
-				usersStock[usersStock.length - 1].productList.push(
-					user['stock.products.id']
-						? {
-								id: user['stock.products.id'],
-								name: user['stock.products.name'],
-								quantity: user['stock.products.stockProduct.quantity']
-						  }
-						: null
-				);
+							  }
+							: null
+					);
+				}
 			}
 			cpt = user.id;
 		});
 
-		const result = [productList, usersStock];
-		return result;
+		// for pagination only
+		const count = productList.length;
+		if (!(offset === 0 && limit === 0)) {
+			productList = productList.slice(offset, limit + offset);
+		}
+		//
+		for (let product of productList) {
+			let theStock = [];
+			for (let userStock of usersStock) {
+				const quantityObj = userStock.productList.find((p) => p.id === product.id);
+				theStock.push({
+					id: userStock.id,
+					firstName: userStock.firstName,
+					lastName: userStock.lastName,
+					city: userStock.city,
+					quantity: quantityObj ? quantityObj.quantity : 0
+				});
+			}
+			product.theStock = theStock;
+		}
+		//
+		return {
+			count,
+			productList,
+			usersStock
+		};
 	} catch (err) {
 		return null;
 	}
@@ -202,3 +334,4 @@ module.exports.addBulk = addBulk;
 module.exports.update = update;
 module.exports.affect = affect;
 module.exports.getAll = getAll;
+module.exports.del = del;

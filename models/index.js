@@ -48,11 +48,29 @@ user.hasOne(user, { as: 'boss', foreignKey: 'bossId', useJunctionTable: false })
 user.hasMany(customer);
 customer.belongsTo(user);
 
+user.hasMany(payment, { foreignKey: 'sender' });
+user.hasMany(payment, { foreignKey: 'receiver' });
+
+user.hasMany(subscription);
+subscription.belongsTo(user);
+
+source.hasMany(order);
+order.belongsTo(source);
+
+user.hasMany(source);
+source.belongsTo(user);
+
+payment.hasMany(order);
+order.belongsTo(payment);
+
 stock.hasOne(user);
 user.belongsTo(stock);
 
-product.belongsToMany(stock, {through: 'stockProduct'});
-stock.belongsToMany(product, {through: 'stockProduct'});
+product.belongsToMany(stock, { through: 'stockProduct' });
+stock.belongsToMany(product, { through: 'stockProduct' });
+
+customer.hasMany(order);
+order.belongsTo(customer);
 
 /*user.belongsTo(stock);
 stock.hasOne(user);

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { add, addBulk, update, affect, getAll } = require('../../services/admin/products');
+const { add, addBulk, update, affect, getAll, del } = require('../../services/admin/products');
 const Joi = require('Joi');
 
 router.post('/add', async (req, res, next) => {
@@ -8,11 +8,12 @@ router.post('/add', async (req, res, next) => {
 	const userId = res.locals.userId;
 	if (!Joi.validate(product, schema).error) {
 		const result = await add(product, userId);
-		if (result === 1) {
-			res.sendStatus(200);
-		} else {
-			res.statusMessage = 'NotAdded';
-			res.sendStatus(400);
+		switch (result) {
+			case 1:
+				return res.sendStatus(200);
+			case 2:
+				res.statusMessage = 'Exist';
+				return res.sendStatus(400);
 		}
 	} else {
 		res.statusMessage = 'DataNotValidated';
@@ -41,11 +42,15 @@ router.post('/update', async (req, res, next) => {
 	const userId = res.locals.userId;
 	if (!Joi.validate(product, schemaUpdate).error) {
 		const result = await update(product, userId);
-		if (result === 1) {
-			res.sendStatus(200);
-		} else {
-			res.statusMessage = 'NotUpdated';
-			res.sendStatus(400);
+		switch (result) {
+			case 1:
+				return res.sendStatus(200);
+			case 2:
+				res.statusMessage = 'Exist';
+				return res.sendStatus(400);
+			case 3:
+				res.statusMessage = 'NotUpdated';
+				return res.sendStatus(400);
 		}
 	} else {
 		res.statusMessage = 'DataNotValidated';
@@ -70,9 +75,22 @@ router.post('/affect', async (req, res, next) => {
 	}
 });
 
-router.post('/getAll', async (req, res, next) => {
+router.get('/getAll/:offset?/:limit?', async (req, res, next) => {
 	const bossId = res.locals.userId;
-	const result = await getAll(bossId);
+	let { offset, limit } = req.params;
+	if (offset && limit) {
+		try {
+			offset = parseInt(offset);
+			limit = parseInt(limit);
+		} catch (err) {
+			offset = 0;
+			limit = 0;
+		}
+	} else {
+		offset = 0;
+		limit = 0;
+	}
+	const result = await getAll(bossId, offset, limit);
 	if (!result) {
 		res.statusMessage = 'InternalError';
 		res.sendStatus(500);
@@ -81,25 +99,45 @@ router.post('/getAll', async (req, res, next) => {
 	}
 });
 
+router.delete('/delete/:id', async (req, res, next) => {
+	const productId = req.params.id;
+	if (!productId) {
+		res.statusMessage = 'NoIdProvided';
+		return res.sendStatus(400);
+	}
+	const result = await del(productId);
+	switch (result) {
+		case 1:
+			return res.sendStatus(200);
+		case 2:
+			res.statusMessage = 'Exist';
+			return res.sendStatus(400);
+			case 3:
+				res.statusMessage = 'NotDeleted';
+				return res.sendStatus(400);
+			
+	}
+});
+
 const schema = Joi.object().keys({
 	name: Joi.string().required(),
 	price: Joi.number().required(),
-	weight: Joi.number(),
-	size: Joi.number(),
-	color: Joi.string(),
-	category: Joi.string().required(),
-	quantity: Joi.number()
+	quantity: Joi.number().required(),
+	size: Joi.string().allow(null),
+	weight: Joi.number().allow(null),
+	color: Joi.string().allow(null),
+	category: Joi.string().allow(null)
 });
 
 const schemaUpdate = Joi.object().keys({
 	id: Joi.number().required(),
-	name: Joi.string(),
-	price: Joi.number(),
-	weight: Joi.number(),
-	size: Joi.number(),
-	color: Joi.string(),
-	category: Joi.string(),
-	quantity: Joi.number()
+	name: Joi.string().required(),
+	price: Joi.number().required(),
+	quantity: Joi.number().required(),
+	size: Joi.string().allow(null),
+	weight: Joi.number().allow(null),
+	color: Joi.string().allow(null),
+	category: Joi.string().allow(null)
 });
 
 const schemaAffect = Joi.object().keys({
