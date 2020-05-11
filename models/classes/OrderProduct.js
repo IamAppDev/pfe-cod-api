@@ -2,6 +2,12 @@ module.exports = (sequelize, DataTypes, Order, Product) => {
 	const OrderProduct = sequelize.define(
 		'orderProduct',
 		{
+			id: {
+				type: DataTypes.INTEGER,
+				autoIncrement: true,
+				primaryKey: true,
+				allowNull: false
+			},
 			orderId: {
 				type: DataTypes.INTEGER,
 				references: {
@@ -15,6 +21,9 @@ module.exports = (sequelize, DataTypes, Order, Product) => {
 					model: Product,
 					key: 'id'
 				}
+			},
+			quantity: {
+				type: DataTypes.INTEGER
 			},
 			discount: {
 				type: DataTypes.INTEGER

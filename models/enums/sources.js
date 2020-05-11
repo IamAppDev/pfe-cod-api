@@ -1,1 +1,1 @@
-module.exports.sources = ['facebook','instagram','whatsapp','store'];
+module.exports.sources = ['facebook','instagram','whatsapp','youtube', 'tiktok', 'affiliation', 'store'];

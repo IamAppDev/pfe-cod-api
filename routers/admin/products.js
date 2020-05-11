@@ -14,6 +14,9 @@ router.post('/add', async (req, res, next) => {
 			case 2:
 				res.statusMessage = 'Exist';
 				return res.sendStatus(400);
+			case 3:
+				res.statusMessage = 'NotAdded';
+				return res.sendStatus(400);
 		}
 	} else {
 		res.statusMessage = 'DataNotValidated';
@@ -50,6 +53,9 @@ router.post('/update', async (req, res, next) => {
 				return res.sendStatus(400);
 			case 3:
 				res.statusMessage = 'NotUpdated';
+				return res.sendStatus(400);
+			case 4:
+				res.statusMessage = 'UserNotFound';
 				return res.sendStatus(400);
 		}
 	} else {
@@ -112,10 +118,9 @@ router.delete('/delete/:id', async (req, res, next) => {
 		case 2:
 			res.statusMessage = 'Exist';
 			return res.sendStatus(400);
-			case 3:
-				res.statusMessage = 'NotDeleted';
-				return res.sendStatus(400);
-			
+		case 3:
+			res.statusMessage = 'NotDeleted';
+			return res.sendStatus(400);
 	}
 });
 

@@ -11,8 +11,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false
 			},
 			name: {
-				type: DataTypes.STRING,
-				unique: true
+				type: DataTypes.STRING
 			},
 			price: {
 				type: DataTypes.FLOAT

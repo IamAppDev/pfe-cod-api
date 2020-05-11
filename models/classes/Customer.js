@@ -23,8 +23,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.STRING
 			},
 			city: {
-				type: DataTypes.ENUM,
-				values: cities
+				type: DataTypes.STRING
 			}
 		},
 		{

@@ -72,17 +72,21 @@ stock.belongsToMany(product, { through: 'stockProduct' });
 customer.hasMany(order);
 order.belongsTo(customer);
 
-/*user.belongsTo(stock);
-stock.hasOne(user);
+user.belongsToMany(order, { through: { model: orderHistory, unique: false } });
+order.belongsToMany(user, { through: { model: orderHistory, unique: false } });
+user.hasMany(orderHistory);
+orderHistory.belongsTo(user);
+order.hasMany(orderHistory);
+orderHistory.belongsTo(order);
 
-user.hasMany(abonnement);
-abonnement.belongsTo(user);
+product.belongsToMany(order, { through: { model: orderProduct, unique: true } });
+order.belongsToMany(product, { through: { model: orderProduct, unique: true } });
+product.hasMany(orderProduct);
+orderProduct.belongsTo(product);
+order.hasMany(orderProduct);
+orderProduct.belongsTo(order);
 
-user.hasMany(client);
-client.belongsTo(user);
 
-payement.hasMany(commande);
-commande.hasOne(payement, { constraints: false });*/
 
 // exportation
 module.exports.user = user;

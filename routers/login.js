@@ -25,7 +25,8 @@ router.post('/', async (req, res) => {
 					res.statusMessage = 'NeedConfirmation';
 					return res.sendStatus(400);
 				case 3:
-					return res.status(400).send('AccountDisabled');
+					res.statusMessage = 'AccountDisabled';
+					return res.sendStatus(400);
 			}
 		}
 	} else {

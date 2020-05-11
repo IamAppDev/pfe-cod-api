@@ -2,21 +2,34 @@ const { user, stock, product, stockProduct, sequelize } = require('../../models/
 const { Op } = require('sequelize');
 
 const add = async (productObj, userId) => {
-	const transaction = await sequelize.transaction();
-	try {
-		const userInstance = await user.findByPk(userId, {
-			include: stock,
-			transaction
-		});
-		const { quantity } = productObj;
-		delete productObj.quantity;
-		await userInstance.stock.createProduct(productObj, { through: { quantity } });
-		await transaction.commit();
-		return 1;
-	} catch (err) {
-		await transaction.rollback();
+	const userInstance = await user.findByPk(userId, {
+		include: [
+			{
+				model: stock,
+				include: [
+					{
+						model: product
+					}
+				]
+			}
+		]
+	});
+
+	let found = userInstance.stock.products.filter((p) => p.name === productObj.name);
+	if (found.length > 0) {
 		return 2;
 	}
+
+	const { quantity } = productObj;
+	delete productObj.quantity;
+	return await userInstance.stock
+		.createProduct(productObj, { through: { quantity } })
+		.then(() => {
+			return 1;
+		})
+		.catch(() => {
+			return 3;
+		});
 };
 
 const addBulk = async (listOfProducts) => {
@@ -36,17 +49,19 @@ const update = async (productObj, userId) => {
 			{
 				model: stock,
 				include: {
-					model: product,
-					where: {
-						id: productObj.id
-					}
+					model: product
 				}
 			}
 		]
 	});
+	let found = userInstance.stock.products.filter((p) => p.name === productObj.name);
+	if (found.length > 1) {
+		return 2;
+	}
 	if (userInstance) {
-		const productInstance = userInstance.stock.products[0];
-		const stockProductInstance = userInstance.stock.products[0].stockProduct;
+		const products = userInstance.stock.products.filter((p) => p.id === productObj.id);
+		const productInstance = products[0];
+		const stockProductInstance = productInstance.stockProduct;
 		stockProductInstance.quantity = productObj.quantity;
 
 		productInstance.name = productObj.name;
@@ -63,10 +78,10 @@ const update = async (productObj, userId) => {
 			return 1;
 		} catch (ex) {
 			await transaction.rollback();
-			return 2;
+			return 3;
 		}
 	} else {
-		return 3;
+		return 4;
 	}
 };
 
@@ -259,7 +274,7 @@ const getAll = async (bossId, offset, limit) => {
 				}
 			});
 
-		if (productList.length === 1 && !productList.length[0]) {
+		if (productList.length === 1 && !productList[0]) {
 			productList = [];
 		}
 
