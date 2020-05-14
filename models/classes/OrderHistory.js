@@ -24,6 +24,9 @@ module.exports = (sequelize, DataTypes, Order, OrderState, User) => {
 					model: User,
 					key: 'id'
 				}
+			},
+			description: {
+				type: DataTypes.STRING
 			}
 		},
 		{

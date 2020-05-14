@@ -1,39 +1,102 @@
 const express = require('express');
 const router = express.Router();
-const { add, update, getAll, getCPS, getDm } = require('../../services/operator/orders');
+const { add, addWithCustomer, update, getAll, getCPS, getDm, archive } = require('../../services/operator/orders');
 const Joi = require('joi');
 
-router.post('add', async (req, res, next) => {
+router.post('/add', async (req, res, next) => {
 	const userId = res.locals.userId;
 	const order = req.body;
 	if (!Joi.validate(order, schemaAdd).error) {
-		// const result = await 
+		const result = await add(order, userId);
+		if (result === 1) {
+			return res.sendStatus(200);
+		} else {
+			res.statusMessage = 'NotAdded';
+			return res.sendStatus(400);
+		}
 	} else {
-		res.statusMessage = 'dataNotValidated';
+		res.statusMessage = 'DataNotValidated';
 		res.sendStatus(400);
 	}
 });
 
-router.post('update', async (req, res, next) => {});
-
-router.get('getAll/:offset?/:limit?', async (req, res, next) => {});
-
-router.get('getCPS', async (req, res, next) => {
+router.post('/addWithCustomer', async (req, res, next) => {
 	const userId = res.locals.userId;
-	const result = await getCPS(userId);
-	res.statusCode(200).send(result);
+	const order = req.body;
+	console.log(Joi.validate(order, schemaAddWithCustomer).error);
+	if (!Joi.validate(order, schemaAddWithCustomer).error) {
+		const result = await addWithCustomer(order, userId);
+		if (result === 1) {
+			return res.sendStatus(200);
+		} else if (result === 2) {
+			res.statusMessage = 'Exist';
+			return res.sendStatus(400);
+		} else {
+			res.statusMessage = 'NotAdded';
+			return res.sendStatus(400);
+		}
+	} else {
+		res.statusMessage = 'DataNotValidated';
+		res.sendStatus(400);
+	}
 });
 
-router.get('getDm', async (req, res, next) => {
+router.post('/update', async (req, res, next) => {
+	const orderToUpdate = req.body;
+});
+
+router.get('/getAll/:offset?/:limit?', async (req, res, next) => {
+	const userId = res.locals.userId;
+	let { offset, limit } = req.params;
+	const { orderBy, orderDirection, filters } = req.query;
+	if (offset && limit) {
+		try {
+			offset = parseInt(offset);
+			limit = parseInt(limit);
+		} catch (err) {
+			offset = 0;
+			limit = 0;
+		}
+	} else {
+		offset = 0;
+		limit = 0;
+	}
+	if (userId) {
+		const orderList = await getAll(userId, offset, limit, orderBy, orderDirection, filters);
+		res.status(200).send(orderList);
+	} else {
+		res.sendStatus(404);
+	}
+});
+
+router.get('/getCPS', async (req, res, next) => {
+	const userId = res.locals.userId;
+	const result = await getCPS(userId);
+	return res.status(200).send(result);
+});
+
+router.get('/getDm', async (req, res, next) => {
 	const userId = res.locals.userId;
 	const result = await getDm(userId);
-	res.statusCode(200).send(result);
+	res.status(200).send(result);
+});
+
+router.post('/archive', async (req, res, next) => {
+	const orderId = req.body;
+	const result = await archive(orderId);
+	if (result === 1) {
+		return res.sendStatus(200);
+	} else {
+		res.statusMessage = 'NotArchived';
+		return res.sendStatus(400);
+	}
 });
 
 const schemaAdd = Joi.object().keys({
 	customerId: Joi.number().required(),
 	sourceId: Joi.number().required(),
-	tracking: Joi.string(),
+	tracking: Joi.string().allow(''),
+	description: Joi.string().allow(''),
 	products: Joi.array().items(
 		Joi.object().keys({
 			productId: Joi.number().required(),
@@ -41,6 +104,40 @@ const schemaAdd = Joi.object().keys({
 			discount: Joi.number().required()
 		})
 	)
+});
+
+const schemaAddWithCustomer = Joi.object().keys({
+	customer: Joi.object().keys({
+		firstName: Joi.string().required(),
+		lastName: Joi.string().allow(''),
+		phone: Joi.string().required(),
+		city: Joi.string().required(),
+		address: Joi.string().required()
+	}),
+	sourceId: Joi.number().required(),
+	tracking: Joi.string().allow(''),
+	description: Joi.string().allow(''),
+	products: Joi.array().items(
+		Joi.object().keys({
+			productId: Joi.number().required(),
+			quantity: Joi.number().required(),
+			discount: Joi.number().required()
+		})
+	)
+});
+
+const schemaUpdate = Joi.object().keys({
+	orderId: Joi.string().required(),
+	tracking: Joi.string(),
+	description: Joi.string(),
+	products: Joi.array().items(
+		Joi.object().keys({
+			productId: Joi.number().required(),
+			quantity: Joi.number().required(),
+			discount: Joi.number().required()
+		})
+	),
+	deliverymanId: Joi.number()
 });
 
 // produit *

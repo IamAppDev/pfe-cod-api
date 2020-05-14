@@ -79,14 +79,12 @@ orderHistory.belongsTo(user);
 order.hasMany(orderHistory);
 orderHistory.belongsTo(order);
 
-product.belongsToMany(order, { through: { model: orderProduct, unique: true } });
-order.belongsToMany(product, { through: { model: orderProduct, unique: true } });
+product.belongsToMany(order, { through: { model: orderProduct, unique: false } });
+order.belongsToMany(product, { through: { model: orderProduct, unique: false } });
 product.hasMany(orderProduct);
 orderProduct.belongsTo(product);
 order.hasMany(orderProduct);
 orderProduct.belongsTo(order);
-
-
 
 // exportation
 module.exports.user = user;

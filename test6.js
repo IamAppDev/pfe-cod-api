@@ -53,8 +53,8 @@ const Joi = require('joi');
 
 	// console.log(Joi.validate(addObj, schemaAdd).error);
 
+	// ---------------- adding
 
-  // ----------------
 	// const addObj = {
 	// 	customerId: 3,
 	// 	sourceId: 2,
@@ -106,7 +106,97 @@ const Joi = require('joi');
 	// } catch (err) {
 	// 	console.log(err);
 	// 	await transaction.rollback();
-  // }
-  
-  
+	// }
+
+	// -------- updating
+
+	const orderToUpdate = {
+		id: '14c2597c-c01c-4013-84a6-8d904bdce68c',
+		products: [
+			{
+				productId: 1,
+				quantity: 2,
+				discount: 10
+			},
+			{
+				productId: 3,
+				quantity: 3,
+				discount: 20
+			}
+		],
+		tracking: 'ZEIFN982',
+		description: 'sm th'
+	};
+	const transaction = await sequelize.transaction();
+	try {
+		const orderSelected = await order.findByPk(orderToUpdate.id, {
+			include: orderHistory
+		});
+
+		orderSelected.tracking = 'ZEIHFZ';
+		await orderSelected.save({ transaction });
+		await orderHistory.destroy(
+			{
+				where: {
+					orderId: orderToUpdate.id,
+					orderState: 'shipped'
+				}
+			},
+			{ transaction }
+		);
+		await orderSelected.createOrderHistory(
+			{
+				userId: 3,
+				orderState: 'shipped',
+				description: orderToUpdate.description
+			},
+			{ transaction }
+		);
+		await orderProduct.destroy({
+			where: {
+				orderId: orderToUpdate.id
+			}
+		});
+		const productsCreated = await orderProduct.bulkCreate(orderToUpdate.products, { transaction });
+		await orderSelected.addOrderProducts(productsCreated, { transaction });
+
+		transaction.commit();
+	} catch (err) {
+		console.log(err);
+		transaction.rollback();
+	}
+
+	// --------- get all order
+
+	// const { orderBy, orderDirection, filters } = req.query;
+	// const order = orderBy && orderDirection ? [[orderBy, orderDirection]] : [];
+	// let filters = {};
+	// if (filtersObj) {
+	// 	try {
+	// 		filtersObj = filtersObj.map((e) => JSON.parse(e));
+	// 		for (let filter of filtersObj) {
+	// 			filters[filter.field] = {
+	// 				[Op.like]: `%${filter.value}%`
+	// 			};
+	// 		}
+	// 	} catch (ex) {}
+	// }
+	// const allOrders = await order.findAll({
+	// 	include: [
+	// 		{
+	// 			model: user,
+	// 			where: {
+	// 				id: 2
+	// 			}
+	// 		},
+	// 		{
+	// 			model: orderHistory
+	// 		},
+	// 		{
+	// 			model: orderProduct
+	// 		}
+	// 	]
+	// });
+
+	// console.log(allOrders.length);
 })();

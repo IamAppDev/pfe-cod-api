@@ -6,7 +6,9 @@ const login = require('../routers/login');
 const confirmation = require('../routers/confirmation');
 const auth = require('../middleware/auth');
 const authAdmin = require('../middleware/authAdmin');
+const authOperator = require('../middleware/authOperator');
 const admin = require('../routers/admin');
+const operator = require('../routers/operator');
 const error = require('../middleware/error');
 const cors = require('../middleware/cors');
 const getNewToken = require('../routers/getNewToken');
@@ -23,6 +25,7 @@ module.exports = (app, logger) => {
 	app.use(auth); // before going down user need to auth
 	// app.use('/sadmin');
 	app.use('/admin', authAdmin, admin);
+	app.use('/operator', authOperator, operator);
 	// app.use('/operator');
 	// app.use('/delivryman');
 	app.use(error(logger));
