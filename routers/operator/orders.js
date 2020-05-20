@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { add, addWithCustomer, update, getAll, getCPS, getDm, archive } = require('../../services/operator/orders');
+const {
+	add,
+	addWithCustomer,
+	update,
+	getAll,
+	getCPS,
+	getDm,
+	archive,
+	updateTracking
+} = require('../../services/operator/orders');
 const Joi = require('joi');
 
 router.post('/add', async (req, res, next) => {
@@ -43,6 +52,17 @@ router.post('/addWithCustomer', async (req, res, next) => {
 
 router.post('/update', async (req, res, next) => {
 	const orderToUpdate = req.body;
+});
+
+router.post('/updateTracking', async (req, res, next) => {
+	const { orderId, tracking } = req.body;
+	const result = await updateTracking(orderId, tracking);
+	if (result === 1) {
+		return res.sendStatus(200);
+	} else {
+		res.statusMessage = 'NotUpdated';
+		return res.sendStatus(400);
+	}
 });
 
 router.get('/getAll/:offset?/:limit?', async (req, res, next) => {

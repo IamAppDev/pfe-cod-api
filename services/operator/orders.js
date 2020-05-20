@@ -149,7 +149,7 @@ const update = async (orderToUpdate) => {
 };
 
 const getAll = async (userId, offset, limit, orderBy, orderDirection, filtersObj) => {
-	const order = orderBy && orderDirection ? [[orderBy, orderDirection]] : [];
+	const orderParams = orderBy && orderDirection ? [[orderBy, orderDirection]] : [];
 	let filters = {};
 	if (filtersObj) {
 		try {
@@ -164,7 +164,7 @@ const getAll = async (userId, offset, limit, orderBy, orderDirection, filtersObj
 	const allOrders = await order.findAll({
 		offset,
 		limit,
-		order,
+		orderParams,
 		where: filters,
 		include: [
 			{
@@ -174,11 +174,33 @@ const getAll = async (userId, offset, limit, orderBy, orderDirection, filtersObj
 				}
 			},
 			{
-				model: orderHistory
+				model: orderHistory,
+				include: [
+					{
+						model: user
+					}
+				]
+			},
+			{
+				model: customer
+			},
+			{
+				model: orderProduct,
+				include: [
+					{
+						model: product
+					}
+				]
+			},
+			{
+				model: source
 			}
 		]
 	});
-	return allOrders;
+	return {
+		count: allOrders.length,
+		orderList: allOrders
+	};
 };
 
 const getCPS = async (userId) => {
@@ -310,6 +332,26 @@ const archive = async (orderId) => {
 		});
 };
 
+const updateTracking = async (orderId, tracking) => {
+	return await order
+		.update(
+			{
+				tracking
+			},
+			{
+				where: {
+					id: orderId
+				}
+			}
+		)
+		.then(() => {
+			return 1;
+		})
+		.catch(() => {
+			return 2;
+		});
+};
+
 module.exports.add = add;
 module.exports.addWithCustomer = addWithCustomer;
 module.exports.update = update;
@@ -317,3 +359,4 @@ module.exports.getAll = getAll;
 module.exports.getCPS = getCPS;
 module.exports.getDm = getDm;
 module.exports.archive = archive;
+module.exports.updateTracking = updateTracking;

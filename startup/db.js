@@ -7,22 +7,19 @@ module.exports = async (logger) => {
 		.authenticate()
 		.then(() => {
 			logger.info('Connected to db .. ');
-			return db.sequelize.sync({ force: true });
+			return db.sequelize.sync(/*{ force: true }*/);
 		})
 		.then(() => {
 			logger.info('Tables created .. ');
 			// creation des roles
-			db.role
-				.bulkCreate([{ libelle: roles[0] }, { libelle: roles[1] }, { libelle: roles[2] }, { libelle: roles[3] }])
-				.then()
-				.catch((err) => console.log(err));
-			const statesArray = states.map((s) => {
-				return { type: s };
-			});
-			db.orderState.bulkCreate(statesArray);
+			// db.role
+			// 	.bulkCreate([{ libelle: roles[0] }, { libelle: roles[1] }, { libelle: roles[2] }, { libelle: roles[3] }])
+			// 	.then()
+			// 	.catch((err) => console.log(err));
+			// const statesArray = states.map((s) => {
+			// 	return { type: s };
+			// });
+			// db.orderState.bulkCreate(statesArray);
 
-			//
-
-			//
 		});
 };

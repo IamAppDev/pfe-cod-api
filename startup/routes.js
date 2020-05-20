@@ -26,7 +26,6 @@ module.exports = (app, logger) => {
 	// app.use('/sadmin');
 	app.use('/admin', authAdmin, admin);
 	app.use('/operator', authOperator, operator);
-	// app.use('/operator');
 	// app.use('/delivryman');
 	app.use(error(logger));
 };
