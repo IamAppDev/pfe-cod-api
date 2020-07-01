@@ -8,9 +8,16 @@ const {
 	getCPS,
 	getDm,
 	archive,
-	updateTracking
+	updateTracking,
+	trackOrder
 } = require('../../services/operator/orders');
 const Joi = require('joi');
+
+router.get('/track', async (req, res, next) => {
+	const tracking = req.body;
+	const result = await trackOrder(tracking);
+	res.send(result);
+});
 
 router.post('/add', async (req, res, next) => {
 	const userId = res.locals.userId;
@@ -52,6 +59,19 @@ router.post('/addWithCustomer', async (req, res, next) => {
 
 router.post('/update', async (req, res, next) => {
 	const orderToUpdate = req.body;
+	const userId = res.locals.userId;
+	if (!Joi.validate(orderToUpdate, schemaUpdate).error) {
+		const result = await update(orderToUpdate, userId);
+		if (result === 1) {
+			return res.sendStatus(200);
+		} else {
+			res.statusCode = 'NotUpdated';
+			return res.sendStatus(400);
+		}
+	} else {
+		res.statusCode = 'DataNotValidated';
+		return res.sendStatus(400);
+	}
 });
 
 router.post('/updateTracking', async (req, res, next) => {
@@ -148,15 +168,8 @@ const schemaAddWithCustomer = Joi.object().keys({
 
 const schemaUpdate = Joi.object().keys({
 	orderId: Joi.string().required(),
-	tracking: Joi.string(),
-	description: Joi.string(),
-	products: Joi.array().items(
-		Joi.object().keys({
-			productId: Joi.number().required(),
-			quantity: Joi.number().required(),
-			discount: Joi.number().required()
-		})
-	),
+	orderState: Joi.string().allow(''),
+	description: Joi.string().allow(''),
 	deliverymanId: Joi.number()
 });
 

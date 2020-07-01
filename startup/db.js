@@ -7,6 +7,7 @@ module.exports = async (logger) => {
 		.authenticate()
 		.then(() => {
 			logger.info('Connected to db .. ');
+			// return db.sequelize.sync({ force: true });
 			return db.sequelize.sync(/*{ force: true }*/);
 		})
 		.then(() => {
@@ -20,6 +21,5 @@ module.exports = async (logger) => {
 			// 	return { type: s };
 			// });
 			// db.orderState.bulkCreate(statesArray);
-
 		});
 };

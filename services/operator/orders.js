@@ -10,6 +10,7 @@ const {
 	sequelize
 } = require('../../models/index');
 const { Op } = require('sequelize');
+const fetch = require('node-fetch');
 
 const add = async (orderToAdd, userId) => {
 	const transaction = await sequelize.transaction();
@@ -101,19 +102,19 @@ const addWithCustomer = async (orderToAdd, userId) => {
 	}
 };
 
-const update = async (orderToUpdate) => {
+const update = async (orderToUpdate, userId) => {
 	const transaction = await sequelize.transaction();
-	const { tracking, description, deliverymanId, orderId, products } = orderToUpdate;
+	const { tracking, description, deliverymanId, orderId, orderState, products } = orderToUpdate;
 	try {
 		const orderSelected = await order.findByPk(orderId, {
 			include: orderHistory
 		});
 
-		if (tracking) {
-			orderSelected.tracking = tracking;
-			await orderSelected.save({ transaction });
-		}
-		if (deliverymanId) {
+		// if (tracking) {
+		// 	orderSelected.tracking = tracking;
+		// 	await orderSelected.save({ transaction });
+		// }
+		if (deliverymanId !== 0) {
 			await orderHistory.destroy(
 				{
 					where: {
@@ -131,14 +132,23 @@ const update = async (orderToUpdate) => {
 				},
 				{ transaction }
 			);
+		} else {
+			await orderSelected.createOrderHistory(
+				{
+					userId,
+					orderState,
+					description
+				},
+				{ transaction }
+			);
 		}
-		await orderProduct.destroy({
-			where: {
-				orderId: orderToUpdate.id
-			}
-		});
-		const productsCreated = await orderProduct.bulkCreate(products, { transaction });
-		await orderSelected.addOrderProducts(productsCreated, { transaction });
+		// await orderProduct.destroy({
+		// 	where: {
+		// 		orderId: orderToUpdate.id
+		// 	}
+		// });
+		// const productsCreated = await orderProduct.bulkCreate(products, { transaction });
+		// await orderSelected.addOrderProducts(productsCreated, { transaction });
 
 		await transaction.commit();
 		return 1;
@@ -352,6 +362,15 @@ const updateTracking = async (orderId, tracking) => {
 		});
 };
 
+const trackOrder = async (tracking) => {
+	const url = 'https://tracking.baridserv.com/api/results/tracking/' + tracking;
+	let result = await fetch(url).then((res) => res.json());
+	result = result.replace(/<\/.*>/g, '');
+	result = result.replace(/<.*>/g, '');
+	result = JSON.parse(result);
+	return result;
+};
+
 module.exports.add = add;
 module.exports.addWithCustomer = addWithCustomer;
 module.exports.update = update;
@@ -360,3 +379,4 @@ module.exports.getCPS = getCPS;
 module.exports.getDm = getDm;
 module.exports.archive = archive;
 module.exports.updateTracking = updateTracking;
+module.exports.trackOrder = trackOrder;

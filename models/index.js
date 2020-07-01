@@ -48,8 +48,10 @@ user.hasOne(user, { as: 'boss', foreignKey: 'bossId', useJunctionTable: false })
 user.hasMany(customer);
 customer.belongsTo(user);
 
-user.hasMany(payment, { foreignKey: 'sender' });
-user.hasMany(payment, { foreignKey: 'receiver' });
+// user.hasMany(payment, { foreignKey: 'sender' });
+// user.hasMany(payment, { foreignKey: 'receiver' });
+user.hasMany(payment);
+payment.belongsTo(user);
 
 user.hasMany(subscription);
 subscription.belongsTo(user);
